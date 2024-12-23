@@ -18,27 +18,11 @@ JSON.stringify = JSON.stringify || function (obj) {
     }
 };
 
-// Function to calculate bounds relative to the document center
-function saveLayerMetadataWithCenterBounds() {
-    var doc = app.activeDocument;
-    var docFolder = doc.path; // Get the folder of the active document
-    var docName = doc.name.replace(/\.[^\.]+$/, ""); // Remove file extension
-    if (!docFolder) {
-        alert("The document must be saved before running this script.");
-        return;
-    }
-
-    // Calculate the document center
-    var docWidth = doc.width.as("px");
-    var docHeight = doc.height.as("px");
-    var docCenterX = docWidth / 2;
-    var docCenterY = docHeight / 2;
-
-    var metadata = []; // Array to store layer data
-
-    for (var i = 0; i < doc.layers.length; i++) {
-        var layer = doc.layers[i];
-        if (layer.kind == LayerKind.NORMAL) {
+// Function to process layers recursively
+function processLayers(layers, docCenterX, docCenterY, metadata) {
+    for (var i = 0; i < layers.length; i++) {
+        var layer = layers[i];
+        if (layer.typename === "ArtLayer" && layer.kind === LayerKind.NORMAL) {
             // Get layer bounds
             var bounds = layer.bounds;
             var layerLeft = bounds[0].as("px");
@@ -60,17 +44,42 @@ function saveLayerMetadataWithCenterBounds() {
                 x: relativeX,
                 y: relativeY
             });
+        } else if (layer.typename === "LayerSet") {
+            // Recursively process subfolder (layer group)
+            processLayers(layer.layers, docCenterX, docCenterY, metadata);
         }
     }
+}
+
+// Main function to save metadata
+function saveLayerMetadataWithSubfolders() {
+    var doc = app.activeDocument;
+    var docFolder = doc.path; // Get the folder of the active document
+    var docName = "metadata"; // Fixed name for JSON file
+    if (!docFolder) {
+        alert("The document must be saved before running this script.");
+        return;
+    }
+
+    // Calculate the document center
+    var docWidth = doc.width.as("px");
+    var docHeight = doc.height.as("px");
+    var docCenterX = docWidth / 2;
+    var docCenterY = docHeight / 2;
+
+    var metadata = []; // Array to store layer data
+
+    // Process all layers (including groups)
+    processLayers(doc.layers, docCenterX, docCenterY, metadata);
 
     // Save metadata as JSON in the same folder as the .psb file
-    var jsonFile = File(docFolder + "/metadata.json");
+    var jsonFile = File(docFolder + "/" + docName + ".json");
     jsonFile.open("w");
     jsonFile.write(JSON.stringify({ layers: metadata }, null, 2)); // Wrap metadata in "layers"
     jsonFile.close();
 
-    alert("Metadata saved successfully as " + "metadata" + ".json!");
+    alert("Metadata saved successfully as " + docName + ".json!");
 }
 
-// Run the function
-saveLayerMetadataWithCenterBounds();
+// Run the main function
+saveLayerMetadataWithSubfolders();
