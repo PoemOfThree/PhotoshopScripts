@@ -1,3 +1,6 @@
+
+// --------------------------------------------------------------- Generate Metadata and rename layers ---------------------------------------------------------------
+
 // JSON Polyfill for Photoshop scripting
 var JSON = JSON || {};
 JSON.stringify = JSON.stringify || function (obj) {
@@ -237,6 +240,7 @@ if (app.documents.length > 0) {
     renameVisibleLayers();
     saveLayerMetadataWithSubfoldersXYName();
     updateMetadataWithZPositions();
+    alert("Layer names have been updated and metadata has been saved.");
 } else {
     alert("No active document found.");
 }
