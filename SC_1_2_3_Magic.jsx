@@ -194,6 +194,7 @@ function getMetadataFileName() {
     return docName;
 }
 
+// --------------------------------------------------------------- rename layers ---------------------------------------------------------------
 // Function to recursively rename visible layers in folders with reversed consecutive order
 function renameVisibleLayersInFolders(root, fileName, layerCount) {
     for (var i = root.layers.length - 1; i >= 0; i--) {
