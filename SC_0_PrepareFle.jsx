@@ -7,7 +7,7 @@ function createFolders() {
     }
 
     // Names of the folders to create
-    var folderNames = ["Background", "Ground", "Foreground"];
+    var folderNames = ["Background", "Ground", "Frontground"];
 
     // Create each folder
     for (var i = 0; i < folderNames.length; i++) {
